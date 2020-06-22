@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -13,9 +13,9 @@ import {
 
 import Icon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import Tasks from './components/Tasks';
 import * as Animatable from 'react-native-animatable';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const AnimetedTouchable = Animatable.createAnimatableComponent(
   TouchableOpacity,
@@ -25,6 +25,24 @@ const index = () => {
   const [task, setTask] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [input, setInput] = useState('');
+
+  useEffect(() => {
+    const loadStorage = async () => {
+      const jsonTask = await AsyncStorage.getItem('@tasks_st');
+      if (jsonTask !== null) {
+        setTask(JSON.parse(jsonTask));
+      }
+    };
+    loadStorage();
+  }, []);
+
+  useEffect(() => {
+    const saveTask = async () => {
+      const storageValue = JSON.stringify(task);
+      await AsyncStorage.setItem('@tasks_st', storageValue);
+    };
+    saveTask();
+  }, [task]);
 
   const handleTask = () => {
     if (input === '') return;
